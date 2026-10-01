@@ -103,7 +103,7 @@ if (menuToggle && navLinks) {
     );
 
 
-    // Mobile link click ke baad menu close
+    // Mobile menu link click ke baad close
 
     const links =
         navLinks.querySelectorAll("a");
@@ -158,7 +158,9 @@ let deleting = false;
 function typeEffect() {
 
     if (!typingText) {
+
         return;
+
     }
 
 
@@ -243,6 +245,7 @@ typeEffect();
 
 // ===================================
 // CONTACT FORM
+// PHP + MYSQL BACKEND
 // ===================================
 
 const contactForm =
@@ -255,27 +258,201 @@ if (contactForm) {
 
     contactForm.addEventListener(
         "submit",
-        function (event) {
+        async function (event) {
 
+            // Page reload ko rokna
             event.preventDefault();
 
+
+
+            // ===================================
+            // GET FORM VALUES
+            // ===================================
 
             const name =
                 document.getElementById(
                     "name"
-                ).value;
+                ).value.trim();
 
 
-            alert(
-                "Thank you " +
-                name +
-                "! Your message has been received."
+            const email =
+                document.getElementById(
+                    "email"
+                ).value.trim();
+
+
+            const message =
+                document.getElementById(
+                    "message"
+                ).value.trim();
+
+
+
+            // ===================================
+            // CHECK EMPTY FIELDS
+            // ===================================
+
+            if (
+                !name ||
+                !email ||
+                !message
+            ) {
+
+                alert(
+                    "Please fill all fields."
+                );
+
+                return;
+
+            }
+
+
+
+            // ===================================
+            // EMAIL VALIDATION
+            // ===================================
+
+            const emailPattern =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+            if (
+                !emailPattern.test(email)
+            ) {
+
+                alert(
+                    "Please enter a valid email address."
+                );
+
+                return;
+
+            }
+
+
+
+            // ===================================
+            // CREATE FORM DATA
+            // ===================================
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "name",
+                name
             );
 
 
-            contactForm.reset();
+            formData.append(
+                "email",
+                email
+            );
+
+
+            formData.append(
+                "message",
+                message
+            );
+
+
+
+            // ===================================
+            // SEND DATA TO PHP
+            // ===================================
+
+            try {
+
+                const response =
+                    await fetch(
+                        "https://anuragmaurya.infinityfreeapp.com/backend/contact.php",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+
+
+                // ===================================
+                // CHECK RESPONSE
+                // ===================================
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Server error: " +
+                        response.status
+                    );
+
+                }
+
+
+
+                const result =
+                    await response.json();
+
+
+
+                // ===================================
+                // SUCCESS
+                // ===================================
+
+                if (result.success) {
+
+                    alert(
+                        "Message sent successfully! ✅"
+                    );
+
+
+                    contactForm.reset();
+
+                }
+
+
+
+                // ===================================
+                // PHP ERROR
+                // ===================================
+
+                else {
+
+                    alert(
+                        result.message ||
+                        "Message could not be sent."
+                    );
+
+                }
+
+            }
+
+
+
+            // ===================================
+            // CONNECTION ERROR
+            // ===================================
+
+            catch (error) {
+
+                console.error(
+                    "Contact Form Error:",
+                    error
+                );
+
+
+                alert(
+                    "Server error. Please try again later."
+                );
+
+            }
 
         }
     );
 
 }
+
+
+
+// ===================================
+// END OF SCRIPT
+// ===================================
